@@ -95,6 +95,7 @@ num_detections = detection_graph.get_tensor_by_name('num_detections:0')
 # expand image dimensions to have shape: [1, None, None, 3]
 # i.e. a single-column array, where each item in the column has the pixel RGB value
 image = cv2.imread(PATH_TO_IMAGE)
+'''
 image_expanded = np.expand_dims(image, axis=0)
 
 # Perform the actual detection by running the model with the image as input
@@ -125,6 +126,43 @@ print(len(classes), len(np.squeeze(classes)))
 # print(len(boxes), len(scores), len(classes), len(num))
 # for i in boxes[0]:
     # print(i)
+'''
+rows = image.shape[0]
+cols = image.shape[1]
+inp = cv2.resize(image, (300, 300))
+inp = inp[:, :, [2, 1, 0]]  # BGR2RGB
+
+# Run the model
+out = sess.run([sess.graph.get_tensor_by_name('num_detections:0'),
+                sess.graph.get_tensor_by_name('detection_scores:0'),
+                sess.graph.get_tensor_by_name('detection_boxes:0'),
+                sess.graph.get_tensor_by_name('detection_classes:0')],
+               feed_dict={'image_tensor:0': inp.reshape(1, inp.shape[0], inp.shape[1], 3)})
+
+# Visualize detected bounding boxes.
+num_detections = int(out[0][0])
+for i in range(num_detections):
+    classId = int(out[3][0][i])
+    score = float(out[1][0][i])
+    bbox = [float(v) for v in out[2][0][i]]
+    if score > 0.3:
+        x = bbox[1] * cols
+        y = bbox[0] * rows
+        right = bbox[3] * cols
+        bottom = bbox[2] * rows
+        print("X {}, y {}, right {}, bottom {}".format(x, y, right, bottom))
+        names = list(category_index.values())
+        name = 0
+        for i in names:
+            if i['id'] == classId:
+                name = i['name']
+                break
+        if name == 0:
+            name = 'not Found'
+        print(name)
+        cv2.rectangle(image, (int(x), int(y)), (int(right), int(bottom)), (125, 255, 51), thickness=2)
+        text = "{}: {}".format(name, round(score, 4))
+        cv2.putText(image, text, (int(x), int(y)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1)
 # All the results have been drawn on image. Now display the image.
 cv2.imshow('Object detector', image)
 
