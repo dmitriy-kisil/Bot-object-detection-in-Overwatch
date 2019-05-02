@@ -162,7 +162,7 @@ for i in range(num_detections):
         print(name)
         cv2.rectangle(image, (int(x), int(y)), (int(right), int(bottom)), (125, 255, 51), thickness=2)
         text = "{}: {}".format(name, round(score, 4))
-        cv2.putText(image, text, (int(x), int(y)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1)
+        cv2.putText(image, text, (int(x), int(y)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 # All the results have been drawn on image. Now display the image.
 cv2.imshow('Object detector', image)
 
