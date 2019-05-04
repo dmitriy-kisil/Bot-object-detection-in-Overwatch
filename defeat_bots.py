@@ -113,8 +113,8 @@ out = cv2.VideoWriter(PATH_TO_OUTPUT, fourcc, 10.0, (1280, 720))
 
 with mss.mss() as sct:
     # Part of the screen to capture
-    monitor = {"top": 120, "left": 280, "width": 1368, "height": 770}
-    # monitor = {"top": 0, "left": 0, "width": 1280, "height": 720}
+    # monitor = {"top": 120, "left": 280, "width": 1368, "height": 770}
+    monitor = {"top": 0, "left": 0, "width": 1920, "height": 1080}
 
     while "Screen recording":
 
@@ -139,14 +139,14 @@ with mss.mss() as sct:
                         sess.graph.get_tensor_by_name('detection_boxes:0'),
                         sess.graph.get_tensor_by_name('detection_classes:0')],
                        feed_dict={'image_tensor:0': inp.reshape(1, inp.shape[0], inp.shape[1], 3)})
-
+        pyautogui.FAILSAFE = False
         # Visualize detected bounding boxes.
         num_detections = int(out1[0][0])
         for i in range(num_detections):
             classId = int(out1[3][0][i])
             score = float(out1[1][0][i])
             bbox = [float(v) for v in out1[2][0][i]]
-            if score > 0.3:
+            if score > 0.9:
                 x = bbox[1] * cols
                 y = bbox[0] * rows
                 right = bbox[3] * cols
@@ -165,6 +165,7 @@ with mss.mss() as sct:
                 # W, H = pyautogui.position()
                 # W, H = W/1.5, H/1.5
                 # print(W, H)
+
                 W, H = 640, 360
                 if x < W and W < right and y < H and H < bottom:
                     print("Before click")
@@ -174,9 +175,15 @@ with mss.mss() as sct:
                     print("Current X:{}, Y:{}".format(currentMouseX, currentMouseY))
                     print("Click!")
                     # pyautogui.moveTo(currentMouseX, currentMouseY, duration=1, tween=pyautogui.tweens.easeInOutQuad)
-                    pyautogui.press("enter")
-                    pyautogui.typewrite("")
-                    pyautogui.press("enter")
+                    # pyautogui.press("enter")
+                    # pyautogui.typewrite("")
+                    # pyautogui.press("enter")
+                    # pyautogui.click(clicks=3, interval=0.25)
+                    # pyautogui.click(button="left")
+                    pyautogui.mouseDown(button='left')
+                    time.sleep(1.0)
+                    # pyautogui.click()
+                    pyautogui.mouseUp(button='left')
                     # pyautogui.typewrite("Detected: {}".format(name), interval=0.1)  # type with quarter-second pause in between each key
                     # pyautogui.press("enter")
                     # pyautogui.press("space")
@@ -184,19 +191,38 @@ with mss.mss() as sct:
                     # pyautogui.moveRel(None, None, duration=1, tween=pyautogui.tweens.easeInOutQuad)
                     # pyautogui.moveRel(100, None, duration=1, tween=pyautogui.tweens.easeInOutQuad)
                     # pyautogui.move(-30, 0, 3)
-                    pyautogui.click(button='left')
-                    # pyautogui.click()
-                    # pyautogui.drag(1, 0, 2, button='right')
                     # pyautogui.click(button='right')
+                    # pyautogui.click()
+                    # pyautogui.drag(0, 0, 1, button='right')
+                    # pyautogui.click(button='left')
                     print("After click")
                     screenWidth, screenHeight = pyautogui.size()
                     currentMouseX, currentMouseY = pyautogui.position()
                     print("Width:{}, height:{}".format(screenWidth, screenHeight))
                     print("Current X:{}, Y:{}".format(currentMouseX, currentMouseY))
 
+
                 cv2.rectangle(frame, (int(x), int(y)), (int(right), int(bottom)), (125, 255, 51), thickness=2)
                 text = "{}: {}".format(name, round(score, 4))
                 cv2.putText(frame, text, (int(x), int(y)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+                '''
+                centerX, centerY = int((x+right)/2), int((y+bottom)/2)
+                screenWidth, screenHeight = pyautogui.size()
+                currentMouseX, currentMouseY = pyautogui.position()
+                print("Width:{}, height:{}".format(screenWidth, screenHeight))
+                print("Current X:{}, Y:{}".format(currentMouseX, currentMouseY))
+                print(centerX, centerY)
+                pyautogui.click()
+                # pyautogui.mouseDown(button='left')
+                # time.sleep(1.0)
+                # pyautogui.mouseUp(button='left')
+                # pyautogui.moveRel(centerX, centerY, duration=1,  tween=pyautogui.tweens.easeInOutQuad)
+                screenWidth, screenHeight = pyautogui.size()
+                currentMouseX, currentMouseY = pyautogui.position()
+                print("Width:{}, height:{}".format(screenWidth, screenHeight))
+                print("Current X:{}, Y:{}".format(currentMouseX, currentMouseY))
+                '''
+
         # All the results have been drawn on image. Now display the image.
         out.write(frame)
         cv2.imshow('Object detector', frame)
