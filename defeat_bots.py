@@ -142,11 +142,14 @@ with mss.mss() as sct:
         pyautogui.FAILSAFE = False
         # Visualize detected bounding boxes.
         num_detections = int(out1[0][0])
+        count = 0
+        # centerX, centerY = 0, 0
         for i in range(num_detections):
             classId = int(out1[3][0][i])
             score = float(out1[1][0][i])
             bbox = [float(v) for v in out1[2][0][i]]
-            if score > 0.9:
+            if score > 0.9 and count == 0:
+                count += 1
                 x = bbox[1] * cols
                 y = bbox[0] * rows
                 right = bbox[3] * cols
@@ -165,8 +168,12 @@ with mss.mss() as sct:
                 # W, H = pyautogui.position()
                 # W, H = W/1.5, H/1.5
                 # print(W, H)
-
-                W, H = 640, 360
+                screenWidth, screenHeight = pyautogui.size()
+                currentMouseX, currentMouseY = pyautogui.position()
+                print("Width:{}, height:{}".format(screenWidth, screenHeight))
+                print("Current X:{}, Y:{}".format(currentMouseX, currentMouseY))
+                W, H = int(currentMouseX/1.5), int(currentMouseY/1.5)
+                '''
                 if x < W and W < right and y < H and H < bottom:
                     print("Before click")
                     screenWidth, screenHeight = pyautogui.size()
@@ -180,6 +187,9 @@ with mss.mss() as sct:
                     # pyautogui.press("enter")
                     # pyautogui.click(clicks=3, interval=0.25)
                     # pyautogui.click(button="left")
+                    # pyautogui.move(3, 3, 1,  tween=pyautogui.tweens.easeInOutQuad)
+                    # pyautogui.moveTo(1, 0)
+                    pyautogui.moveRel(1, 0)
                     pyautogui.mouseDown(button='left')
                     time.sleep(1.0)
                     # pyautogui.click()
@@ -202,26 +212,64 @@ with mss.mss() as sct:
                     print("Current X:{}, Y:{}".format(currentMouseX, currentMouseY))
 
 
-                cv2.rectangle(frame, (int(x), int(y)), (int(right), int(bottom)), (125, 255, 51), thickness=2)
-                text = "{}: {}".format(name, round(score, 4))
-                cv2.putText(frame, text, (int(x), int(y)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
                 '''
-                centerX, centerY = int((x+right)/2), int((y+bottom)/2)
-                screenWidth, screenHeight = pyautogui.size()
-                currentMouseX, currentMouseY = pyautogui.position()
-                print("Width:{}, height:{}".format(screenWidth, screenHeight))
-                print("Current X:{}, Y:{}".format(currentMouseX, currentMouseY))
+
+                centerX, centerY = int((x+right)/2 - abs(x-right)*0.1), int((y+bottom)/2 - abs(y-bottom)*0.45)
                 print(centerX, centerY)
-                pyautogui.click()
+                moveexp = ""
+                moveX, moveY = abs(W-centerX), abs(H-centerY)
+                if moveX > 25 and moveY > 25:
+                    moveX, moveY = 25, 25
+                else:
+                    pass
+                print("Moves: {}, {}".format(moveX, moveY))
+                if moveX <= 5 and moveY <= 5:
+                    moveexp += "Center"
+                    # pyautogui.mouseDown(button='left')
+                    # time.sleep(1.0)
+                    # pyautogui.mouseUp(button='left')
+                    pyautogui.mouseDown(button='right')
+                    time.sleep(1.0)
+                    pyautogui.click()
+                    pyautogui.mouseUp(button='right')
+                elif centerX > W and centerY > H:
+                    pyautogui.move(moveX, moveY, duration=0.1, tween=pyautogui.tweens.easeInOutQuad)
+                    moveexp += "DownRight"
+                elif centerX > W and centerY < H:
+                    pyautogui.move(moveX, -moveY, duration=0.1, tween=pyautogui.tweens.easeInOutQuad)
+                    moveexp += "UpRight"
+                elif centerX < W and centerY > H:
+                    pyautogui.move(-moveX, moveY, duration=0.1, tween=pyautogui.tweens.easeInOutQuad)
+                    moveexp += "DownLeft"
+                elif centerX < W and centerY < H:
+                    pyautogui.move(-moveX, -moveY, duration=0.1, tween=pyautogui.tweens.easeInOutQuad)
+                    moveexp += "UPLeft"
+                cv2.circle(frame, (centerX, centerY), 5, (0, 255, 0), -1)
+                cv2.rectangle(frame, (int(x), int(y)), (int(right), int(bottom)), (125, 255, 51), thickness=2)
+                textboxes = "{}: {}".format(name, round(score, 4))
+                textcoord = "Coord: X: {}, Y: {}".format(int(centerX), int(centerY))
+                textcurrmouse = "Currmouse: X: {}, Y: {}".format(int(W), int(H))
+                textdistance = "Distance: X: {}, Y: {}".format(int(centerX-W), int(centerY-H))
+                textmoves = "Moves: X: {}, Y: {}".format(moveX, moveY)
+                cv2.putText(frame, textboxes, (int(x), int(y)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+                cv2.putText(frame, textcoord, (20, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+                cv2.putText(frame, textcurrmouse, (40, 40), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+                cv2.putText(frame, textdistance, (60, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+                cv2.putText(frame, textmoves, (80, 80), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+                cv2.putText(frame, moveexp, (100, 100), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+
+                # pyautogui.click()
+                # pyautogui.move(int(centerX/2), int(centerY/2))
                 # pyautogui.mouseDown(button='left')
                 # time.sleep(1.0)
                 # pyautogui.mouseUp(button='left')
-                # pyautogui.moveRel(centerX, centerY, duration=1,  tween=pyautogui.tweens.easeInOutQuad)
                 screenWidth, screenHeight = pyautogui.size()
                 currentMouseX, currentMouseY = pyautogui.position()
                 print("Width:{}, height:{}".format(screenWidth, screenHeight))
                 print("Current X:{}, Y:{}".format(currentMouseX, currentMouseY))
-                '''
+            else:
+                break
+
 
         # All the results have been drawn on image. Now display the image.
         out.write(frame)
