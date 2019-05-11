@@ -149,13 +149,13 @@ with mss.mss() as sct:
             classId = int(out1[3][0][i])
             score = float(out1[1][0][i])
             bbox = [float(v) for v in out1[2][0][i]]
-            if score > 0.95:
+            if score > 0.9:
 
                 x = bbox[1] * cols
                 y = bbox[0] * rows
                 right = bbox[3] * cols
                 bottom = bbox[2] * rows
-                # print("X {}, y {}, right {}, bottom {}".format(x, y, right, bottom))
+
                 names = list(category_index.values())
                 name = 0
                 for i in names:
@@ -179,53 +179,7 @@ with mss.mss() as sct:
                 hl.append(H)
                 textboxes = "{}: {}".format(name, round(score, 4))
                 cv2.rectangle(frame, (int(x), int(y)), (int(right), int(bottom)), (125, 255, 51), thickness=2)
-                # print(name)
-                # Check center of a screen inside the box
-                # W, H = pyautogui.position()
-                # W, H = W/1.5, H/1.5
-                # print(W, H)
 
-                '''
-                if x < W and W < right and y < H and H < bottom:
-                    print("Before click")
-                    screenWidth, screenHeight = pyautogui.size()
-                    currentMouseX, currentMouseY = pyautogui.position()
-                    print("Width:{}, height:{}".format(screenWidth, screenHeight))
-                    print("Current X:{}, Y:{}".format(currentMouseX, currentMouseY))
-                    print("Click!")
-                    # pyautogui.moveTo(currentMouseX, currentMouseY, duration=1, tween=pyautogui.tweens.easeInOutQuad)
-                    # pyautogui.press("enter")
-                    # pyautogui.typewrite("")
-                    # pyautogui.press("enter")
-                    # pyautogui.click(clicks=3, interval=0.25)
-                    # pyautogui.click(button="left")
-                    # pyautogui.move(3, 3, 1,  tween=pyautogui.tweens.easeInOutQuad)
-                    # pyautogui.moveTo(1, 0)
-                    pyautogui.moveRel(1, 0)
-                    pyautogui.mouseDown(button='left')
-                    time.sleep(1.0)
-                    # pyautogui.click()
-                    pyautogui.mouseUp(button='left')
-                    # pyautogui.typewrite("Detected: {}".format(name), interval=0.1)  # type with quarter-second pause in between each key
-                    # pyautogui.press("enter")
-                    # pyautogui.press("space")
-                    # pyautogui.moveRel(-100, None, duration=1, tween=pyautogui.tweens.easeInOutQuad)
-                    # pyautogui.moveRel(None, None, duration=1, tween=pyautogui.tweens.easeInOutQuad)
-                    # pyautogui.moveRel(100, None, duration=1, tween=pyautogui.tweens.easeInOutQuad)
-                    # pyautogui.move(-30, 0, 3)
-                    # pyautogui.click(button='right')
-                    # pyautogui.click()
-                    # pyautogui.drag(0, 0, 1, button='right')
-                    # pyautogui.click(button='left')
-                    print("After click")
-                    screenWidth, screenHeight = pyautogui.size()
-                    currentMouseX, currentMouseY = pyautogui.position()
-                    print("Width:{}, height:{}".format(screenWidth, screenHeight))
-                    print("Current X:{}, Y:{}".format(currentMouseX, currentMouseY))
-
-
-                '''
-        print(len(xl), xl)
         if xl != []:
             x, y, right, bottom, name, W, H = xl[0], yl[0], rightl[0], bottoml[0], namel[0], wl[0], hl[0]
             del xl, yl, rightl, bottoml, namel, wl, hl
@@ -252,15 +206,11 @@ with mss.mss() as sct:
                 # pyautogui.mouseUp(button='left')
                 # pyautogui.PAUSE = 1.0
                 pyautogui.mouseDown(button='right')
-                # pyautogui.PAUSE = 1.0
                 time.sleep(1.0)
                 # pyautogui.PAUSE = 0.01
                 pyautogui.click()
                 pyautogui.mouseUp(button='right')
-                # pyautogui.keyDown('w')
-                # pyautogui.PAUSE = 3.0
-                # pyautogui.keyUp('w')
-                # pyautogui.PAUSE = 0.01
+
             elif centerX > W and centerY > H:
                 pyautogui.move(moveX/2, moveY/2, duration=0.1, tween=pyautogui.tweens.easeInOutQuad)
                 moveexp += "DownRight"
@@ -286,66 +236,10 @@ with mss.mss() as sct:
             cv2.putText(frame, textmoves, (80, 80), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
             cv2.putText(frame, moveexp, (100, 100), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
-        # pyautogui.click()
-        # pyautogui.move(int(centerX/2), int(centerY/2))
-        # pyautogui.mouseDown(button='left')
-        # time.sleep(1.0)
-        # pyautogui.mouseUp(button='left')
-        screenWidth, screenHeight = pyautogui.size()
-        currentMouseX, currentMouseY = pyautogui.position()
-        print("Width:{}, height:{}".format(screenWidth, screenHeight))
-        print("Current X:{}, Y:{}".format(currentMouseX, currentMouseY))
-
-
-
         # All the results have been drawn on image. Now display the image.
         out.write(frame)
         cv2.imshow('Object detector', frame)
 
-
-        # frame = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
-        # print(img.shape)
-        # Display the picture
-        # cv2.imshow("OpenCV/Numpy normal", img)
-
-        # Display the picture in grayscale
-        # cv2.imshow('OpenCV/Numpy grayscale',
-        #            cv2.cvtColor(img, cv2.COLOR_BGRA2GRAY))
-        # cv2.putText(frame, "FPS: %f" % (1.0 / (time.time() - last_time)), (10, 10),  cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-        # print("fps: {}".format(1 / (time.time() - last_time)))
-        # out.write(frame)
-        # cv2.imshow('frame', frame)
-
-        # Acquire frame and expand frame dimensions to have shape: [1, None, None, 3]
-        # i.e. a single-column array, where each item in the column has the pixel RGB value
-        # ret, frame = video.read()
-        '''
-        frame_expanded = np.expand_dims(frame, axis=0)
-
-        # Perform the actual detection by running the model with the image as input
-        (boxes, scores, classes, num) = sess.run(
-            [detection_boxes, detection_scores, detection_classes, num_detections],
-            feed_dict={image_tensor: frame_expanded})
-
-        # Draw the results of the detection (aka 'visualize the results')
-        vis_util.visualize_boxes_and_labels_on_image_array(
-            frame,
-            np.squeeze(boxes),
-            np.squeeze(classes).astype(np.int32),
-            np.squeeze(scores),
-            category_index,
-            use_normalized_coordinates=True,
-            line_thickness=8,
-            min_score_thresh=0.85)
-        # print("Boxes: {} scores {}, classes {}, num {}".format(boxes, classes, scores, num))
-        # print(len(boxes), len(scores), len(classes), len(num))
-        # print(np.squeeze(boxes), np.squeeze(classes).astype(np.int32), np.squeeze(scores))
-
-        # All the results have been drawn on the frame, so it's time to display it.
-        cv2.putText(frame, "FPS: %f" % (1.0 / (time.time() - fps_time)), (10, 10),  cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-        out.write(frame)
-        cv2.imshow('Object detector', frame)
-        '''
         fps_time = time.time()
         # Press 'q' to quit
         if cv2.waitKey(1) == ord('q'):

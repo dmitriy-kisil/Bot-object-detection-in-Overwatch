@@ -54,7 +54,7 @@ PATH_TO_CKPT = os.path.join(CWD_PATH, MODEL_NAME, 'frozen_inference_graph.pb')
 PATH_TO_LABELS = os.path.join(CWD_PATH, 'training', 'labelmap.pbtxt')
 
 # Path to output file
-OUTPUT_NAME = 'output3.avi'
+OUTPUT_NAME = 'output2.avi'
 PATH_TO_OUTPUT = os.path.join(CWD_PATH, OUTPUT_NAME)
 
 # Number of classes the object detector can identify
