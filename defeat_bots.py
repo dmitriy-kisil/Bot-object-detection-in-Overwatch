@@ -73,6 +73,10 @@ category_index = label_map_util.create_category_index(categories)
 
 # Load the Tensorflow model into memory.
 detection_graph = tf.Graph()
+# Because running game already used some fraction of GPU memory, specify to use only n% of GPU RAM.
+# For example, in my case using 70% (and remain 30% for actually game) of memory is possible
+config = tf.ConfigProto()
+config.gpu_options.per_process_gpu_memory_fraction = 0.7
 with detection_graph.as_default():
     od_graph_def = tf.GraphDef()
     with tf.gfile.GFile(PATH_TO_CKPT, 'rb') as fid:
@@ -80,7 +84,7 @@ with detection_graph.as_default():
         od_graph_def.ParseFromString(serialized_graph)
         tf.import_graph_def(od_graph_def, name='')
 
-    sess = tf.Session(graph=detection_graph)
+    sess = tf.Session(graph=detection_graph, config=config)
 
 
 # Define input and output tensors (i.e. data) for the object detection classifier

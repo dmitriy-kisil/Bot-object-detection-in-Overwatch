@@ -41,9 +41,12 @@ Thumbs.db
 ########################
 *.mkv
 *.avi
+.idea
+venv
 output.avi
 output2.avi
 output3.avi
 keyboard.py
 trystream.py
+try_this.py
 
