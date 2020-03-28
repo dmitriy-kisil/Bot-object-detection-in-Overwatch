@@ -2,6 +2,7 @@ import numpy as np
 import cv2
 import time
 import mss
+import win32gui
 
 frame_width = 1280
 frame_height = 720
@@ -12,7 +13,13 @@ out = cv2.VideoWriter(OUTPUT_FILE, fourcc, frame_rate,
                       (frame_width, frame_height))
 with mss.mss() as sct:
     # Part of the screen to capture
-    monitor = {"top": 120, "left": 280, "width": 1368, "height": 770}
+    hwnd = win32gui.FindWindow(None, 'Overwatch')
+    rect = win32gui.GetWindowRect(hwnd)
+    x = rect[0] + 8
+    y = rect[1] + 32
+    w = rect[2] - x - 16
+    h = rect[3] - y - 8
+    monitor = {"top": y, "left": x, "width": w, "height": h}
     start_time = time.time()
     total_frags = 0
     number_of_frags = 0
@@ -36,7 +43,7 @@ with mss.mss() as sct:
         else:
             h = 50
         # Set coordinates for "moving" recognition window
-        x, y, h, w = 1000, 0, h, 200
+        x, y, h, w = 1030, 10, h, 100
         # Show "moving" window
         cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 0, 255), 2)
         # Crop recognition window from frame
