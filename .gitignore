@@ -44,8 +44,10 @@ Thumbs.db
 .idea
 venv
 output.avi
+output.wav
 output2.avi
 output3.avi
+output4.*
 keyboard.py
 trystream.py
 try_this.py
