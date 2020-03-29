@@ -98,8 +98,65 @@ def audiohandler(filename):
     wf.close()
 
 
-def videohandler(filename):
-    fps_time = 0
+def gameplay_video_handler(filename):
+    frame_width = 1920
+    frame_height = 1080
+    frame_rate = 19.0
+
+    def on_press(key):
+        try:
+            print('alphanumeric key {0} pressed'.format(
+                key.char))
+            if key.char == 'q':
+                # Stop listener
+                return False
+        except AttributeError:
+            print('special key {0} pressed'.format(
+                key))
+
+    # Store data in chunks for 3 seconds
+    listener = keyboard.Listener(on_press=on_press)
+    listener.start()
+
+    fourcc = cv2.VideoWriter_fourcc(*'XVID')
+    out = cv2.VideoWriter(f'{filename}.avi', fourcc, frame_rate,
+                          (frame_width, frame_height))
+    with mss.mss() as sct:
+        # Part of the screen to capture
+        # hwnd = win32gui.FindWindow(None, 'Overwatch')
+        # rect = win32gui.GetWindowRect(hwnd)
+        # x = rect[0] + 8
+        # y = rect[1] + 32
+        # w = rect[2] - x - 16
+        # h = rect[3] - y - 8
+        monitor = {"top": 0, "left": 0, "width": 1920, "height": 1080}
+        start_time = time.time()
+        while True:
+            if not listener.running:
+                break
+            # Time which frame has been captured, need to show how many seconds screen is recorded
+            last_time = time.time()
+            # Get raw pixels from the screen, save it to a Numpy array
+            img = np.array(sct.grab(monitor))
+            # Without this converting opencv cannot save each frame in a video!
+            frame = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+            frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+            # Track seconds for screenplay
+            how_much_seconds = int(time.time() - start_time)
+            cv2.putText(frame,  f"How much seconds: {how_much_seconds}", (10, 10),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+            cv2.putText(frame, "FPS: %f" % (1.0 / (time.time() - last_time)),
+                        (30, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+            # Save frame to video
+            out.write(frame)
+            # Show frame to you
+            # cv2.imshow('frame', frame)
+            # Clean up
+        out.release()
+        cv2.destroyAllWindows()
+
+
+def ai_video_handler(filename):
 
     # This is needed since the notebook is stored in the object_detection folder.
     sys.path.append("..")
@@ -409,18 +466,27 @@ def videohandler(filename):
 
 if __name__ == "__main__":
 
-    filename = "output4"
-    proc1 = Process(target=audiohandler, args=(filename,))
+    filename_for_gameplay = "output3"
+    filename_for_ai = "output4"
+    proc1 = Process(target=audiohandler, args=(filename_for_ai,))
     proc1.start()
-    proc2 = Process(target=videohandler, args=(filename,))
+    proc2 = Process(target=ai_video_handler, args=(filename_for_ai,))
     proc2.start()
+    proc3 = Process(target=gameplay_video_handler, args=(filename_for_gameplay,))
+    proc3.start()
     proc1.join()
     proc2.join()
+    proc3.join()
 
-    merge_into_movie = f'ffmpeg -y -i {filename}.avi -i {filename}.wav -c copy {filename}.mkv'
-    # merge_into_movie = f'ffmpeg -y -i {filename}.avi -i {filename}.wav -c:v copy -c:a aac -strict experimental {filename}.mkv'
-    p = subprocess.Popen(merge_into_movie)
-    output, _ = p.communicate()
-    print(output)
-    os.remove(f'{filename}.avi')
-    os.remove(f'{filename}.wav')
+    # merge_into_gameplay_movie = f'ffmpeg -y -i {filename_for_gameplay}.avi -i {filename_for_ai}.wav -c copy {filename_for_gameplay}.mkv'
+    merge_into_gameplay_movie = f'ffmpeg -y -i {filename_for_gameplay}.avi -i {filename_for_ai}.wav -c:v copy -c:a aac -strict experimental {filename_for_gameplay}.mkv'
+    cmd_merge_gameplay = subprocess.Popen(merge_into_gameplay_movie)
+    output_merge_gameplay, _ = cmd_merge_gameplay.communicate()
+    os.remove(f'{filename_for_gameplay}.avi')
+    merge_into_ai_movie = f'ffmpeg -y -i {filename_for_ai}.avi -i {filename_for_ai}.wav -c copy {filename_for_ai}.mkv'
+    # merge_into_ai_movie = f'ffmpeg -y -i {filename_for_ai}.avi -i {filename_for_ai}.wav -c:v copy -c:a aac -strict experimental {filename_for_ai}.mkv'
+    cmd_merge_ai = subprocess.Popen(merge_into_ai_movie)
+    output_merge_ai, _ = cmd_merge_ai.communicate()
+    print(output_merge_ai)
+    os.remove(f'{filename_for_ai}.avi')
+    os.remove(f'{filename_for_ai}.wav')
