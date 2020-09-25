@@ -11,4 +11,4 @@ pyautogui==0.9.48
 pywin32==227
 pyAudio==0.2.11
 pynput==1.6.8
-tensorflow-gpu==1.13.1
+tensorflow-gpu==1.15.4
