@@ -1,7 +1,7 @@
 pyscreenshot==1.0
 ffmpeg==1.4
 pillow==6.2.1
-lxml==4.5.0
+lxml==4.6.3
 jupyter==1.0.0
 opencv-python==4.2.0.32
 matplotlib==3.1.3
